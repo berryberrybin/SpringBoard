@@ -16,4 +16,22 @@
 			ORDER BY board_idx DESC
 		]]>
     </select>
+    <insert id = "insertBoard" parameterType="com.board.dto.BoardDto">
+        <![CDATA[
+            INSERT INTO t_board
+            (
+                title,
+                contents,
+                created_datetime,
+                creator_id
+            )
+            VALUES
+            (
+                #{title},
+                #{contents},
+                NOW(),
+                'admin'
+            )
+        ]]>
+    </insert>
 </mapper>
