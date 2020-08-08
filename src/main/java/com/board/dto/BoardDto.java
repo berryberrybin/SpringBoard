@@ -1,7 +1,5 @@
 package com.board.dto;
 
-import java.time.LocalDateTime;
-
 public class BoardDto {
     private int boardIdx;
     private String title;
