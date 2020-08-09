@@ -20,6 +20,7 @@ public class BoardController {
 
     @RequestMapping("/board/openBoardList.do")
     public ModelAndView openBoardList() throws Exception {
+        int i = 10 / 0;
         ModelAndView mv = new ModelAndView();
         mv.setViewName("boardList");
         List<BoardDto> list = boardService.selectBoardList();
