@@ -3,14 +3,16 @@ package com.service;
 import java.util.List;
 
 import com.board.dto.BoardDto;
+import com.cache.LRUCache;
 import com.mapper.BoardMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 //@Transactional
+
 public class BoardServiceImpl implements BoardService {
+
     @Autowired
     private BoardMapper boardMapper;
 
@@ -27,7 +29,14 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public BoardDto selectBoardDetail(int boardIdx) throws Exception {
         boardMapper.updateHitCount(boardIdx);
-        BoardDto board = boardMapper.selectBoardDetail(boardIdx);
+        BoardDto board ;
+        LRUCache lruCache = new LRUCache(boardIdx);
+        if(!lruCache.containsKey(boardIdx)){
+            board = boardMapper.selectBoardDetail(boardIdx);
+            lruCache.put(boardIdx, board);
+        } else{
+            board = lruCache.get(boardIdx);
+        }
         return board;
     }
 
@@ -40,4 +49,7 @@ public class BoardServiceImpl implements BoardService {
     public void deleteBoard(int boardIdx) throws Exception {
         boardMapper.deleteBoard(boardIdx);
     }
+
+
+
 }
