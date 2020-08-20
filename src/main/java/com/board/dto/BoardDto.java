@@ -1,5 +1,7 @@
 package com.board.dto;
 
+import java.util.List;
+
 public class BoardDto {
     private int boardIdx;
     private String title;
@@ -9,6 +11,15 @@ public class BoardDto {
     private String createdDatetime;
     private String updaterId;
     private String updatedDatetime;
+    private List<BoardFileDto> fileList;
+
+    public List<BoardFileDto> getFileList() {
+        return fileList;
+    }
+
+    public void setFileList(List<BoardFileDto> fileList) {
+        this.fileList = fileList;
+    }
 
     public int getBoardIdx() {
         return boardIdx;

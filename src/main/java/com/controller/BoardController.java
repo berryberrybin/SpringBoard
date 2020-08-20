@@ -20,7 +20,7 @@ public class BoardController {
     @Autowired
     private BoardService boardService;
 
-    @RequestMapping(value = "/board/openBoardList.do",method = RequestMethod.GET)
+    @RequestMapping(value = "/board/openBoardList.do", method = RequestMethod.GET)
     public ModelAndView openBoardList() throws Exception {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("boardList");
@@ -50,13 +50,13 @@ public class BoardController {
         return mv;
     }
 
-    @RequestMapping(value = "/board/updateBoard.do", method = RequestMethod.PUT)
+    @RequestMapping(value = "/board/updateBoard.do", method = RequestMethod.POST)
     public String updateBoard(BoardDto board) throws Exception {
         boardService.updateBoard(board);
         return "redirect:/board/openBoardList.do";
     }
 
-    @RequestMapping(value = "/board/deleteBoard.do", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/board/deleteBoard.do", method = RequestMethod.POST)
     public String deleteBoard(int boardIdx) throws Exception {
         boardService.deleteBoard(boardIdx);
         return "redirect:/board/openBoardList.do";

@@ -2,6 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.mapper.BoardMapper">
+    <select id="selectBoardFileList" parameterType="int"
+            resultType="com.board.dto.BoardFileDto">
+        <![CDATA[
+            SELECT
+                idx, board_idx, original_file_name,
+                FORMAT(ROUND(file_size/1024),0) AS file_size
+            FROM
+                t_file
+            WHERE
+                board_idx=#{boardIdx}
+                AND deleted_yn='N'
+        ]]>
+    </select>
     <select id="selectBoardList" resultType="com.board.dto.BoardDto">
         <![CDATA[
 			SELECT
@@ -16,7 +29,8 @@
 			ORDER BY board_idx DESC
 		]]>
     </select>
-    <insert id = "insertBoard" parameterType="com.board.dto.BoardDto">
+    <insert id="insertBoard" parameterType="com.board.dto.BoardDto"
+            useGeneratedKeys="true" keyProperty="boardIdx">
         <![CDATA[
             INSERT INTO t_board
             (
@@ -33,6 +47,30 @@
                 'admin'
             )
         ]]>
+    </insert>
+    <insert id="insertBoardFileList" parameterType="com.board.dto.BoardFileDto">
+        <![CDATA[
+            INSERT INTO t_file
+            (
+                board_idx,
+                original_file_name,
+                stored_file_path,
+                file_size,
+                creator_id,
+                created_datetime
+            )
+            VALUES
+        ]]>
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.boardIdx},
+            #{item.originalFileName},
+            #{item.storedFilePath},
+            #{item.fileSize},
+            'admin',
+            NOW()
+            )
+        </foreach>
     </insert>
     <update id="updateHitCount" parameterType="int">
         <![CDATA[
