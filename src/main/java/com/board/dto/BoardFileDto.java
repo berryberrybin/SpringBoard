@@ -16,7 +16,7 @@ public class BoardFileDto {
         this.idx = idx;
     }
 
-    public int getBoardIDx() {
+    public int getBoardIdx() {
         return boardIdx;
     }
 

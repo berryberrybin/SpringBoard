@@ -2,6 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.mapper.BoardMapper">
+    <select id = "selectBoardFileInformation" parameterType="map"
+            resultType = "com.board.dto.BoardFileDto">
+    <![CDATA[
+        SELECT
+            original_file_name,
+            stored_file_path,
+            file_size
+        FROM
+            t_File
+        WHERE
+            idx = #{idx}
+            AND board_idx = #{boardIdx}
+            And deleted_yn = 'N'
+        ]]>
+    </select>
     <select id="selectBoardFileList" parameterType="int"
             resultType="com.board.dto.BoardFileDto">
         <![CDATA[
