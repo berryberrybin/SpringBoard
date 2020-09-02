@@ -5,10 +5,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,12 +35,14 @@ public class MyBoardController {
     }
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public List<String> titleList() throws Exception {
-        List<String> list = new ArrayList<>();
-        File f = new File("fileDB/"+title+".txt");
-        list.add();
-        list.add("B");
-        list.add("C");
-        return list;
+        List<String> fileNameList = new ArrayList<>();
+        String fileName = "fileDB/" ;
+        for (File info : new File(fileName).listFiles()) {
+            if (info.isFile()) {
+                fileNameList.add(info.getName());
+            }
+        }
+        return fileNameList;
     }
     @RequestMapping(value = "/read", method = RequestMethod.GET)
     public void read() throws Exception {
