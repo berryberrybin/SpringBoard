@@ -45,6 +45,17 @@ public class MyBoardController {
         return fileNameList;
     }
     @RequestMapping(value = "/read", method = RequestMethod.GET)
-    public void read() throws Exception {
+    public String read(HttpServletRequest httpServletRequest) throws Exception {
+        String title = httpServletRequest.getParameter("title");
+        String fileName = "fileDB/"+title+".txt";
+        FileReader fileReader = new FileReader(fileName);
+        BufferedReader reader = new BufferedReader(fileReader);
+        String line = null;
+        String contents="";
+        while((line = reader.readLine())!=null){
+            contents += line;
+        }
+        reader.close();
+        return contents;
     }
 }
