@@ -4,6 +4,9 @@ public class Param {
     private String title;
     private String contents;
     private String writer;
+    private String updateTime;
+
+
     public String getTitle() {
         return title;
     }
@@ -11,7 +14,6 @@ public class Param {
     public void setTitle(String title) {
         this.title = title;
     }
-
 
     public String getContents() {
         return contents;
@@ -28,4 +30,13 @@ public class Param {
     public void setWriter(String writer) {
         this.writer = writer;
     }
+
+    public String getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(String updateTime) {
+        this.updateTime = updateTime;
+    }
+
 }
