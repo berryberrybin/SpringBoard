@@ -1,14 +1,10 @@
 package com.controller;
 
-
 import com.board.dto.Param;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.*;
+import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,15 +18,12 @@ public class MyBoardController {
         String title = param.getTitle();
         String contents = param.getContents();
         String writer = param.getWriter();
-
         Connection conn = null;
         PreparedStatement pstmt = null;
-
         try {
             Class.forName("com.mysql.jdbc.Driver");
             String url = "jdbc:log4jdbc:mysql://localhost:3306/insight?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC";
             conn = DriverManager.getConnection(url, "root", "sb09130504@@");
-
             String sql = "INSERT INTO board(title,contents,writer, update_time) VALUES(?,?,?,NOW())";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, title);
@@ -59,14 +52,13 @@ public class MyBoardController {
                 e.printStackTrace();
             }
         }
-
         return "success";
     }
 
     @RequestMapping(value = "/boards", method = RequestMethod.GET)
-    public List<String> titleList() throws Exception {
+    public List<String> titleList(@RequestBody Param param) throws Exception {
         List<String> fileNameList = new ArrayList<>();
-        String fileName = "fileDB/";
+        String fileName = param.getTitle();
         for (File info : new File(fileName).listFiles()) {
             if (info.isFile()) {
                 fileNameList.add(info.getName());
@@ -76,21 +68,58 @@ public class MyBoardController {
     }
 
     @RequestMapping(value = "/board", method = RequestMethod.GET)
-    public String read(HttpServletRequest httpServletRequest) throws Exception {
-        String title = httpServletRequest.getParameter("title");
-        File f = new File("fileDB/" + title + ".txt");
-        if (!f.exists()) {
-            return "Not found";
+    public Param read(@RequestParam(value = "_index", defaultValue = "0") int index) throws Exception {
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        Param param = new Param();
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            String url = "jdbc:log4jdbc:mysql://localhost:3306/insight?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC";
+            conn = DriverManager.getConnection(url, "root", "sb09130504@@");
+
+            String sql = "SELECT _index, title, contents, writer, update_time FROM board WHERE _index = " + index;
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                String title = rs.getString("title");
+                param.setTitle(title);
+                String contents = rs.getString("contents");
+                param.setContents(contents);
+                String writer = rs.getString("writer");
+                param.setWriter(writer);
+                String update_time = rs.getString("update_time");
+                param.setUpdateTime(update_time);
+                System.out.println(title + " " + contents + " " + writer + " " + update_time);
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error : " + e.getMessage());
+        } catch (ClassNotFoundException e1) {
+            System.out.println("[JDBC Connector Driver 오류 : " + e1.getMessage() + "]");
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        String contents = "";
-        FileReader fileReader = new FileReader(f);
-        BufferedReader reader = new BufferedReader(fileReader);
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            contents = contents + line + "\n";
-        }
-        reader.close();
-        return contents;
+        return param;
     }
 
     @RequestMapping(value = "/board", method = RequestMethod.DELETE)
@@ -104,6 +133,4 @@ public class MyBoardController {
         }
         return "success";
     }
-
-
 }
