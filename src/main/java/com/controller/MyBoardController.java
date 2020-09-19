@@ -56,15 +56,60 @@ public class MyBoardController {
     }
 
     @RequestMapping(value = "/boards", method = RequestMethod.GET)
-    public List<String> titleList(@RequestBody Param param) throws Exception {
-        List<String> fileNameList = new ArrayList<>();
-        String fileName = param.getTitle();
-        for (File info : new File(fileName).listFiles()) {
-            if (info.isFile()) {
-                fileNameList.add(info.getName());
+    public List<Param> titleList() throws Exception {
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        List<Param> paramList = new ArrayList<>();
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            String url = "jdbc:log4jdbc:mysql://localhost:3306/insight?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC";
+            conn = DriverManager.getConnection(url, "root", "sb09130504@@");
+
+            String sql = "SELECT * FROM board ";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                Param param = new Param();
+                String title = rs.getString("title");
+                param.setTitle(title);
+                String contents = rs.getString("contents");
+                param.setContents(contents);
+                String writer = rs.getString("writer");
+                param.setWriter(writer);
+                String update_time = rs.getString("update_time");
+                param.setUpdateTime(update_time);
+                paramList.add(param);
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error : " + e.getMessage());
+        } catch (ClassNotFoundException e1) {
+            System.out.println("[JDBC Connector Driver 오류 : " + e1.getMessage() + "]");
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        return fileNameList;
+        return paramList;
     }
 
     @RequestMapping(value = "/board", method = RequestMethod.GET)
