@@ -72,10 +72,10 @@ public class MyBoardController {
             rs = stmt.executeQuery(sql);
             while (rs.next()) {
                 Param param = new Param();
+                int index = rs.getInt("_index");
+                param.setIndex(index);
                 String title = rs.getString("title");
                 param.setTitle(title);
-                String contents = rs.getString("contents");
-                param.setContents(contents);
                 String writer = rs.getString("writer");
                 param.setWriter(writer);
                 String update_time = rs.getString("update_time");
@@ -117,13 +117,18 @@ public class MyBoardController {
         Connection conn = null;
         Statement stmt = null;
         ResultSet rs = null;
+        ResultSet resultSet = null;
+        PreparedStatement pstmt = null;
         Param param = new Param();
         try {
             Class.forName("com.mysql.jdbc.Driver");
             String url = "jdbc:log4jdbc:mysql://localhost:3306/insight?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC";
             conn = DriverManager.getConnection(url, "root", "sb09130504@@");
+            String sql2 = "UPDATE board SET hit_count = hit_count+ 1 WHERE _index = " + index;
+            pstmt = conn.prepareStatement(sql2);
+            pstmt.executeUpdate();
 
-            String sql = "SELECT _index, title, contents, writer, update_time FROM board WHERE _index = " + index;
+            String sql = "SELECT title, contents, writer, update_time,hit_count FROM board WHERE _index = " + index;
             stmt = conn.createStatement();
             rs = stmt.executeQuery(sql);
             while (rs.next()) {
@@ -135,6 +140,8 @@ public class MyBoardController {
                 param.setWriter(writer);
                 String update_time = rs.getString("update_time");
                 param.setUpdateTime(update_time);
+                int hitCount = rs.getInt("hit_count");
+                param.setHitCount(hitCount);
                 System.out.println(title + " " + contents + " " + writer + " " + update_time);
             }
         } catch (SQLException e) {
@@ -168,13 +175,74 @@ public class MyBoardController {
     }
 
     @RequestMapping(value = "/board", method = RequestMethod.DELETE)
-    public String delete(HttpServletRequest httpServletRequest) throws Exception {
-        String title = httpServletRequest.getParameter("title");
-        File f = new File("fileDB/" + title + ".txt");
-        if (!f.exists()) {
-            return "Not found";
-        } else {
-            f.delete();
+    public String delete(@RequestParam int index) throws Exception {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            String url = "jdbc:log4jdbc:mysql://localhost:3306/insight?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC";
+            conn = DriverManager.getConnection(url, "root", "sb09130504@@");
+
+            String sql = " DELETE From board WHERE _index = " + index;
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            System.out.println("SQL Error : " + e.getMessage());
+        } catch (ClassNotFoundException e1) {
+            System.out.println("[JDBC Connector Driver 오류 : " + e1.getMessage() + "]");
+        } finally {
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return "success";
+    }
+
+    @RequestMapping(value = "/board", method = RequestMethod.PUT)
+    public String update(@RequestBody Param param) throws Exception {
+        int index = param.getIndex();
+        String title = param.getTitle();
+        String contents = param.getContents();
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            String url = "jdbc:log4jdbc:mysql://localhost:3306/insight?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC";
+            conn = DriverManager.getConnection(url, "root", "sb09130504@@");
+            String sql = "update board set title=?,contents=?where _index=" + index;
+            pstmt = conn.prepareStatement(sql);
+
+            pstmt.setString(1, title);
+            pstmt.setString(2, contents);
+            pstmt.executeUpdate();
+        } catch (ClassNotFoundException e) {
+            System.out.println("SQL Error" + e.getMessage());
+        } finally {
+            try {
+                pstmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return "success";
     }
